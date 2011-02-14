@@ -1,0 +1,4 @@
+This is a file server that accepts file uploads through Java over UDT. It uses 
+Andrei Pozolotin's Barchart UDT at: 
+
+http://code.google.com/p/barchart-udt/
