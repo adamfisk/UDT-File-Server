@@ -39,7 +39,8 @@ public class UdtFileUploadServer {
 
     public UdtFileUploadServer() {
         try {
-            this.serverSocket = new NetServerSocketUDT();
+            //this.serverSocket = new NetServerSocketUDT();
+            this.serverSocket = new ServerSocket();
             final SocketAddress serverAddress = 
                 new InetSocketAddress(getLocalHost(), 7777);
             log.info("Server address is: {}", serverAddress);
