@@ -41,7 +41,7 @@ public class UdtFileUploadServer {
         try {
             this.serverSocket = new NetServerSocketUDT();
             final SocketAddress serverAddress = 
-                new InetSocketAddress(getLocalHost(), 7777);
+                new InetSocketAddress(AmazonEc2Utils.getPublicAddress(), 7777);
             log.info("Server address is: {}", serverAddress);
             serverSocket.bind(serverAddress);
         } catch (final IOException e) {
