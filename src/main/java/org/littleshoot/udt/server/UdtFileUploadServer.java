@@ -155,8 +155,8 @@ public class UdtFileUploadServer {
                     if (len > 0) {
                         os.write(bytes, index, len);
                     }
-                    copy(is, os);
                     start = System.currentTimeMillis();
+                    copy(is, os);
                 } catch (final IOException e) {
                     log.info("Exception reading file...", e);
                 } finally {
