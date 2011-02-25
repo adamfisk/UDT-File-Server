@@ -15,6 +15,8 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,6 +28,7 @@ import com.barchart.udt.net.NetServerSocketUDT;
 
 public class UdtFileUploadServer {
 
+    private static int count;
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ExecutorService readPool = Executors.newCachedThreadPool();
     
@@ -38,6 +41,7 @@ public class UdtFileUploadServer {
     //private SelectionKey acceptorKey;
 
     private final ServerSocket serverSocket;
+    protected long start;
 
     public UdtFileUploadServer() {
         final Properties props = new Properties();
@@ -101,6 +105,7 @@ public class UdtFileUploadServer {
                 log.warn("Exception on accept", e);
                 continue;
             }
+            time();
             copyFile(sock);
         }
 
@@ -150,7 +155,8 @@ public class UdtFileUploadServer {
                     if (len > 0) {
                         os.write(bytes, index, len);
                     }
-                    IOUtils.copy(is, os);
+                    copy(is, os);
+                    start = System.currentTimeMillis();
                 } catch (final IOException e) {
                     log.info("Exception reading file...", e);
                 } finally {
@@ -162,6 +168,46 @@ public class UdtFileUploadServer {
         };
         log.info("Executing copy...");
         readPool.execute(runner);
+    }
+    
+    /**
+     * Copy bytes from a large (over 2GB) <code>InputStream</code> to an
+     * <code>OutputStream</code>.
+     * <p>
+     * This method buffers the input internally, so there is no need to use a
+     * <code>BufferedInputStream</code>.
+     * 
+     * @param input  the <code>InputStream</code> to read from
+     * @param output  the <code>OutputStream</code> to write to
+     * @return the number of bytes copied
+     * @throws NullPointerException if the input or output is null
+     * @throws IOException if an I/O error occurs
+     * @since Commons IO 1.3
+     */
+    private static long copy(InputStream input, OutputStream output)
+            throws IOException {
+        byte[] buffer = new byte[1024 * 4];
+        count = 0;
+        int n = 0;
+        while (-1 != (n = input.read(buffer))) {
+            output.write(buffer, 0, n);
+            count += n;
+        }
+        return count;
+    }
+    
+    private void time() {
+        final TimerTask tt = new TimerTask() {
+            
+            @Override
+            public void run() {
+                final long cur = System.currentTimeMillis();
+                final long secs = (cur - start)/1000;
+                System.out.println("TRANSFERRED: "+count/1024+" SPEED: "+(count/1024)/secs + "KB/s");
+            }
+        };
+        final Timer t = new Timer();
+        t.schedule(tt, 2000, 2000);
     }
 
     /**
