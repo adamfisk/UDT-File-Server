@@ -39,8 +39,8 @@ public class UdtFileUploadServer {
 
     public UdtFileUploadServer() {
         try {
-            //this.serverSocket = new NetServerSocketUDT();
-            this.serverSocket = new ServerSocket();
+            this.serverSocket = new NetServerSocketUDT();
+            //this.serverSocket = new ServerSocket();
             final SocketAddress serverAddress = 
                 new InetSocketAddress(getLocalHost(), 7777);
             log.info("Server address is: {}", serverAddress);
@@ -148,7 +148,7 @@ public class UdtFileUploadServer {
      * instead of the address assigned on the local network. It has to do with
      * how localhost is defined in /etc/hosts. This method creates a quick
      * UDP socket and gets the local address for the socket on Linux systems
-     * to get around the problem. This can also happen on OSX in newers 
+     * to get around the problem. This can also happen on OSX in newer
      * versions of the OS.
      * 
      * @return The local network address in a cross-platform manner.
