@@ -1,6 +1,7 @@
 package org.littleshoot.udt.server;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +14,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,9 +40,28 @@ public class UdtFileUploadServer {
     private final ServerSocket serverSocket;
 
     public UdtFileUploadServer() {
+        final Properties props = new Properties();
+        boolean useUdt = true;
+        FileInputStream fis = null;
         try {
-            this.serverSocket = new NetServerSocketUDT();
-            //this.serverSocket = new ServerSocket();
+            fis = new FileInputStream(new File("udt.properties"));
+            props.load(fis);
+            final String udt = props.getProperty("udt", "true").trim();
+            if (udt.equalsIgnoreCase("false")) {
+                useUdt = false;
+            }
+        } catch (final IOException e) {
+        }
+        finally {
+            IOUtils.closeQuietly(fis);
+        }
+        try {
+            if (useUdt) {
+                this.serverSocket = new NetServerSocketUDT();
+            }
+            else {
+                this.serverSocket = new ServerSocket();
+            }
             final SocketAddress serverAddress = 
                 new InetSocketAddress(getLocalHost(), 7777);
             log.info("Server address is: {}", serverAddress);
