@@ -157,6 +157,8 @@ public class UdtFileUploadServer {
                     final String fileName = new String(bytes, 0, nameIndex).trim();
                     final String lengthString = new String(bytes, nameIndex, lengthIndex).trim();
                     final long length = Long.parseLong(lengthString);
+                    System.out.println("Length is: "+length);
+                    
                     //final BufferedReader br = 
                     //    new BufferedReader(new InputStreamReader(is));
                     //final String fileName = br.readLine();
