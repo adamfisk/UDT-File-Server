@@ -33,13 +33,15 @@ public class ClientConnectTest extends TestCase {
         System.out.println("Connected!!");
         //final File f = new File("pom.xml");
         final File f = new File("LittleShootPlugin.tgz");
-        FileInputStream is = new FileInputStream(f);
+        final FileInputStream is = new FileInputStream(f);
         OutputStream os = clientSocket.getOutputStream();
         time();
-        os.write("LittleShootPlugin.tgz.test\n".getBytes("UTF-8"));
+        os.write(("LittleShootPlugin.tgz.test\n"+f.length()+"\n").getBytes("UTF-8"));
         //IOUtils.copy(is, os);
         copy(is, os);
-        Thread.sleep(100 * 1000);
+        
+        System.out.println("DONE WITH COPY!!");
+        Thread.sleep(220 * 1000);
     }
     
     private long copy(final InputStream input, final OutputStream output)

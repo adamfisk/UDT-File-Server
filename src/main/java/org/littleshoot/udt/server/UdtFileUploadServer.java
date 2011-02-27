@@ -128,35 +128,46 @@ public class UdtFileUploadServer {
                     is = sock.getInputStream();
                     final byte[] bytes = new byte[1024];
                     final int bytesRead = is.read(bytes);
-                    int index = 0;
-                    boolean found = false;
+                    int nameIndex = 0;
+                    int lengthIndex = 0;
+                    boolean foundFirst = false;
+                    //boolean foundSecond = false;
                     for (final byte b : bytes) {
-                        index++;
+                        if (!foundFirst) {
+                            nameIndex++;
+                        }
+                        lengthIndex++;
                         if (b == '\n') {
-                            found = true;
-                            break;
+                            if (foundFirst) {
+                                break;
+                            }
+                            foundFirst = true;
                         }
                     }
-                    if (index < 2) {
+                    if (nameIndex < 2) {
                         // First bytes was a LF?
                         sock.close();
                         return;
                     }
-                    if (!found) {
+                    if (!foundFirst) {
                         
                     }
-                    final String fileName = new String(bytes, 0, index).trim();
+                    System.out.println("Name Index: "+nameIndex);
+                    System.out.println("Length index: "+lengthIndex);
+                    final String fileName = new String(bytes, 0, nameIndex).trim();
+                    final String lengthString = new String(bytes, nameIndex, lengthIndex).trim();
+                    final long length = Long.parseLong(lengthString);
                     //final BufferedReader br = 
                     //    new BufferedReader(new InputStreamReader(is));
                     //final String fileName = br.readLine();
                     final File file = new File(fileName);
                     os = new FileOutputStream(file);
-                    final int len = bytesRead - index;
+                    final int len = bytesRead - nameIndex;
                     if (len > 0) {
-                        os.write(bytes, index, len);
+                        os.write(bytes, nameIndex, len);
                     }
                     start = System.currentTimeMillis();
-                    copy(is, os);
+                    copy(is, os, length);
                 } catch (final IOException e) {
                     log.info("Exception reading file...", e);
                 } finally {
@@ -179,11 +190,13 @@ public class UdtFileUploadServer {
      * 
      * @param input  the <code>InputStream</code> to read from
      * @param output  the <code>OutputStream</code> to write to
+     * @param length 
      * @return the number of bytes copied
      * @throws NullPointerException if the input or output is null
      * @throws IOException if an I/O error occurs
      * @since Commons IO 1.3
      */
+    /*
     private static long copy(InputStream input, OutputStream output)
             throws IOException {
         byte[] buffer = new byte[1024 * 4];
@@ -193,6 +206,27 @@ public class UdtFileUploadServer {
             output.write(buffer, 0, n);
             count += n;
         }
+        return count;
+    }
+    */
+    
+    private long copy(final InputStream input, final OutputStream output, 
+        final long length) throws IOException {
+
+        final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        // long count = 0;
+        int n = 0;
+        while (-1 != (n = input.read(buffer))) {
+            output.write(buffer, 0, n);
+            count += n;
+            if (count == length) {
+                break;
+            }
+            // System.out.println("Bytes written: "+count);
+        }
+        final long end = System.currentTimeMillis();
+        System.out.println("TOTAL TIME: " + (end - start) / 1000 + " seconds");
         return count;
     }
     
