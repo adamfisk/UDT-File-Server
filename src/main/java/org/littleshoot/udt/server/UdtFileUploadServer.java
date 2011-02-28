@@ -44,6 +44,11 @@ public class UdtFileUploadServer {
     protected long start;
 
     public UdtFileUploadServer() {
+        //System.out.println("LOADING LIBRARY");
+        
+        //System.load("/Users/afisk/code/UDT-File-Server/test/libbarchart-udt4-1.0.3-SNAPSHOT.jnilib");
+        //System.out.println("LOADED");
+        
         final Properties props = new Properties();
         boolean useUdt = true;
         FileInputStream fis = null;
@@ -164,9 +169,9 @@ public class UdtFileUploadServer {
                     //final String fileName = br.readLine();
                     final File file = new File(fileName);
                     os = new FileOutputStream(file);
-                    final int len = bytesRead - nameIndex;
+                    final int len = bytesRead - lengthIndex;
                     if (len > 0) {
-                        os.write(bytes, nameIndex, len);
+                        os.write(bytes, lengthIndex, len);
                     }
                     start = System.currentTimeMillis();
                     copy(is, os, length);
