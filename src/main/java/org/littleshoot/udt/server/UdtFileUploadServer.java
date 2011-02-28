@@ -133,6 +133,29 @@ public class UdtFileUploadServer {
                     is = sock.getInputStream();
                     final byte[] bytes = new byte[1024];
                     final int bytesRead = is.read(bytes);
+                    final String str = new String(bytes);
+                    if (str.startsWith("GET ")) {
+                        int nameIndex = 0;
+                        for (final byte b : bytes) {
+                            if (b == '\n') {
+                                break;
+                            }
+                            nameIndex++;
+                        }
+                        // Eat the \n.
+                        nameIndex++;
+                        final String fileName = new String(bytes, 4, nameIndex).trim();
+                        System.out.println("File name: "+fileName);
+                        final File f = new File(fileName);
+                        final FileInputStream fis = new FileInputStream(f);
+                        os = sock.getOutputStream();
+                        
+                        copy(fis, os, f.length());
+                        os.close();
+                        return;
+                    }
+                    
+                    
                     int nameIndex = 0;
                     int lengthIndex = 0;
                     boolean foundFirst = false;
